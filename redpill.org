@@ -1,0 +1,75 @@
+* MICRO STM32G030J6M6
+  - Cuando quito el programador se cae el pin NRST, reseteando al micro
+
+* Migrar Herramientas
+** DONE Actualizar version OpenOCD
+   CLOSED: [2020-09-04 Fri 17:18]
+** DONE Archivos de configuracion de OpenOCD
+   CLOSED: [2020-09-05 Sat 19:34]
+*** DONE reset.cfg
+    CLOSED: [2020-09-04 Fri 17:21]
+*** DONE gdb.cfg
+    CLOSED: [2020-09-05 Sat 12:43]
+*** DONE flash.cfg
+    CLOSED: [2020-09-05 Sat 12:43]
+*** flash_lock.cfg
+
+** Migrar herramientas de compilacion [4/4]
+   - [X] Makefile
+   - [X] linker
+   - [X] CMSIS
+   - [X] startup.s
+         el codigo llamaba a la funcion __libc_init_array (que no encontraba _init), lo comento
+
+
+* Migrar Programas y Tests Basicos
+** Tests basicos [8/9]
+   - [X] Pines out
+   - [X] Pines in
+   - [X] Pull-Up
+   - [X] PLL Clock
+         Aca encontre un problema con el divisor M del PLL
+   - [X] SysTick freq
+   - [X] Usart1
+   - [X] ADC & DMA
+         con el detalle de la freq de conversion que explico mas abajo
+   - [X] Usart2
+   - [ ] Timers module
+
+* Consumos estimados
+  - https://github.com/eonteam/stm32g0/blob/master/README.md
+
+| Mode     | Freq   | Current |
+|----------+--------+---------|
+| Run Mode | @64Mhz | 5.07 mA |
+|          | @32Mhz | 3.41 mA |
+|          | @16Mhz | 2.49 mA |
+|          | @8Mhz  | 2.03 mA |
+|          | @4Mhz  | 1.80 mA |
+|          | @2Mhz  | 1.25 mA |
+|----------+--------+---------|
+
+
+* PLL en 64MHz
+** Cuando puse los multiplicadores y divisores me aparecio un problema
+   - tuve que poner divisor M = 2, y en PLLPCLK salen 64MHz, cuando debiera ser 32MHz
+   - si no hago esto y M = 1, pierdo el acceso a la memoria
+
+* Los pines se comparten directamente en paralelo en las patas
+** PB5 / PB6 el que configure es el que actua en el pin
+
+
+* ADC 16MHz
+** El ADC en modo sincronico no me funciona a 16MHz
+   - probe 64MHz / 4  (con los comentarios de arriba en los 64MHz)
+   - con 16MHz / 1 no funciona tampoco
+   - 16MHz / 2 va bien
+
+** ADC en modo async no me funciona 16MHz, en 8MHz si
+
+
+
+
+
+
+
