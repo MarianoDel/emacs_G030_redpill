@@ -36,10 +36,10 @@ extern volatile unsigned short wait_ms_var;
 //     TIM3->CCR2 = a;
 // }
 
-// void Update_TIM3_CH3 (unsigned short a)
-// {
-//     TIM3->CCR3 = a;
-// }
+void Update_TIM3_CH3 (unsigned short a)
+{
+    TIM3->CCR3 = a;
+}
 
 // void Update_TIM3_CH4 (unsigned short a)
 // {
@@ -57,65 +57,46 @@ void Wait_ms (unsigned short wait)
 // @param  None
 // @retval None
 //------------------------------------------//
-// void TIM3_IRQHandler (void)	//1 ms
-// {
-//     if (TIM3->SR & 0x01)	//bajo el flag
-//         TIM3->SR = 0x00;
-// }
+void TIM3_IRQHandler (void)	//1 ms
+{
+    if (TIM3->SR & 0x01)	//bajo el flag
+        TIM3->SR = 0x00;
+}
 
 
-// void TIM_3_Init (void)
-// {
-//     unsigned int temp;
+void TIM_3_Init (void)
+{
+    if (!RCC_TIM3_CLK)
+        RCC_TIM3_CLK_ON;
 
-//     if (!RCC_TIM3_CLK)
-//         RCC_TIM3_CLK_ON;
+    //Configuracion del timer.
+    TIM3->CR1 = 0x00;		//clk int / 1; upcounting
+    // TIM3->CR2 |= TIM_CR2_MMS_1;		//UEV -> TRG0
+//	TIM3->CCMR2 = 0x7070;			//CH4 y CH3 output PWM mode 2
+    // TIM3->CCMR1 = 0x0060;			//CH1 PWM mode 2
+    TIM3->CCMR2 = 0x0060;        //CH3 PWM mode 2
+    TIM3->CCER |= TIM_CCER_CC3E;        //CH3 enable on pin
 
-//     //Configuracion del timer.
-//     TIM3->CR1 = 0x00;		//clk int / 1; upcounting
-//     TIM3->CR2 |= TIM_CR2_MMS_1;		//UEV -> TRG0
-// #if (defined VER_1_0) || (defined VER_1_1)
-// //	TIM3->CCMR2 = 0x7070;			//CH4 y CH3 output PWM mode 2
-//     TIM3->CCMR1 = 0x0060;			//CH1 PWM mode 2
-//     TIM3->CCMR2 = 0x0000;			//
-//     TIM3->CCER |= TIM_CCER_CC1E;	//CH1 enable on pin
+    TIM3->ARR = 1000;        //64MHz / 1000
+    TIM3->CNT = 0;
+    TIM3->PSC = 0;
+    // TIM3->PSC = 11;
 
-// #ifdef POWER_MEAS_WITH_SAMPLES
-//     TIM3->ARR = 1000;			//seteo en 4KHz para muestreo ADC
-//     TIM3->CNT = 0;
-//     //TIM3->PSC = 0;
-//     TIM3->PSC = 11;
-// #endif
+    //TIM3->EGR = TIM_EGR_UG;
 
-// #ifdef POWER_MEAS_PEAK_TO_PEAK
-//     TIM3->ARR = 255;			//seteo en 15686Hz
-//     TIM3->CNT = 0;
-//     //TIM3->PSC = 0;
-//     TIM3->PSC = 11;
-// #endif
+    // Enable timer ver UDIS
+    //TIM3->DIER |= TIM_DIER_UIE;
+    TIM3->CR1 |= TIM_CR1_CEN;
 
-//     //TIM3->EGR = TIM_EGR_UG;
+    //Alternative pin config.
+    //Alternate Fuction
+    unsigned int temp;
+    temp = GPIOB->AFR[0];
+    temp &= 0xFFFFFFF0;
+    temp |= 0x00000001;    //PB0 -> AF1
+    GPIOB->AFR[0] = temp;
 
-//     // Enable timer ver UDIS
-//     //TIM3->DIER |= TIM_DIER_UIE;
-//     TIM3->CR1 |= TIM_CR1_CEN;
-
-//     //Timer sin Int
-//     //NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
-//     //NVIC_InitStructure.NVIC_IRQChannelPriority = 5;
-//     //NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//     //NVIC_Init(&NVIC_InitStructure);
-
-//     //Configuracion Pines
-//     //Alternate Fuction
-//     temp = GPIOA->AFR[0];
-//     temp &= 0xF0FFFFFF;
-//     temp |= 0x01000000;	//PA6 -> AF1
-//     GPIOA->AFR[0] = temp;
-//     // GPIOB->AFR[0] = 0x00010000;	//PB4 -> AF1
-// #endif
-
-// }
+}
 
 // void TIM_6_Init (void)
 // {

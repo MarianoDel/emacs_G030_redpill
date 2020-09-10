@@ -24,7 +24,7 @@
 // #include "core_cm0.h"
 #include "adc.h"
 // #include "dma.h"
-// #include "flash_program.h"
+#include "flash_program.h"
 
 // #include "sim900_800.h"
 // #include "funcs_gsm.h"
@@ -43,6 +43,13 @@ volatile unsigned char usart2_have_data = 0;
 // --- For the ADC ------------------------------
 volatile unsigned short adc_ch [ADC_CHANNEL_QUANTITY];
 volatile unsigned char adc_int_seq_ready = 0;
+
+
+parameters_typedef __attribute__ ((section("memParams"))) const parameters_constants =
+{
+    .num_reportar = "12345678",
+    .imei = "0000"
+};
 
 // Globals ---------------------------------------------------------------------
 
@@ -107,7 +114,10 @@ int main(void)
     // TF_Usart1_Adc_Int();
     // TF_Usart1_Adc_Dma();
     // TF_Usart2_Single();
-    TF_Usart2_Multiple();    
+    // TF_Usart2_Multiple();
+    // TF_Tim3_Pwm();
+    // TF_Usart1_Flash_Empty_Page ();
+    TF_Usart1_Flash_Write_Data ();
     
     return 0;
 }

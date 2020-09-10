@@ -16,8 +16,11 @@
 #include "usart.h"
 #include "adc.h"
 #include "dma.h"
+#include "tim.h"
+#include "flash_program.h"
 
 #include <stdio.h>
+#include <string.h>
 
 
 
@@ -319,5 +322,214 @@ void TF_Usart2_Multiple (void)
     }
 }
 
+
+void TF_Tim3_Pwm (void)
+{
+    TIM_3_Init();
+
+    while (1)
+    {
+        for (unsigned short i = 0; i < 1000; i++)
+        {
+            Update_TIM3_CH3 (i);
+            Wait_ms(2);            
+        }
+
+        if (LED)
+            LED_OFF;
+        else
+            LED_ON;
+
+        for (unsigned short i = 1000; i > 0; i--)
+        {
+            Update_TIM3_CH3 (i);
+            Wait_ms(2);            
+        }
+
+        if (LED)
+            LED_OFF;
+        else
+            LED_ON;
+        
+    }
+}
+
+
+void TF_Usart1_Flash_Empty_Page (void)
+{
+    for (unsigned char i = 0; i < 5; i++)
+    {
+        LED_ON;
+        Wait_ms(250);
+        LED_OFF;
+        Wait_ms(250);
+    }
+    
+    Usart1Config();
+
+    char s_to_send [100] = { 0 };
+    unsigned char * p;
+    p = (unsigned char *) PAGE15_ADDR;
+    
+    Usart1Send("\nReading Flash Data...\n");
+
+    for (unsigned char i = 0; i < 64; i+=8)
+    {
+        sprintf(s_to_send, "0x%x %d %d %d %d %d %d %d %d\n",
+                (unsigned int) (p + i),
+                *(p + i + 0),
+                *(p + i + 1),
+                *(p + i + 2),
+                *(p + i + 3),
+                *(p + i + 4),
+                *(p + i + 5),
+                *(p + i + 6),
+                *(p + i + 7));
+        
+        Usart1Send(s_to_send);
+        Wait_ms(20);
+    }
+
+    Usart1Send("\nBlanking flash...\n");
+    Wait_ms(500);
+    if (Flash_ErasePage(PAGE15, 1) == FLASH_COMPLETE)
+    {
+        Usart1Send("Blank OK\n");
+        Wait_ms(100);
+    }
+    else
+    {
+        Usart1Send("Blank NOK\n");
+        Wait_ms(100);
+    }
+
+    Usart1Send("\nReading Flash Data...\n");
+
+    for (unsigned char i = 0; i < 64; i+=8)
+    {
+        sprintf(s_to_send, "0x%x %d %d %d %d %d %d %d %d\n",
+                (unsigned int) (p + i),
+                *(p + i + 0),
+                *(p + i + 1),
+                *(p + i + 2),
+                *(p + i + 3),
+                *(p + i + 4),
+                *(p + i + 5),
+                *(p + i + 6),
+                *(p + i + 7));
+        
+        Usart1Send(s_to_send);
+        Wait_ms(20);
+    }
+    
+    while (1)
+    {
+        Wait_ms(300);
+        if (LED)
+            LED_OFF;
+        else
+            LED_ON;
+
+    }
+}
+
+
+void TF_Usart1_Flash_Write_Data (void)
+{
+    for (unsigned char i = 0; i < 5; i++)
+    {
+        LED_ON;
+        Wait_ms(250);
+        LED_OFF;
+        Wait_ms(250);
+    }
+    
+    Usart1Config();
+
+    char s_to_send [100] = { 0 };
+    unsigned char * p;
+    p = (unsigned char *) PAGE15_ADDR;
+    
+    Usart1Send("\nReading Flash Data...\n");
+
+    for (unsigned char i = 0; i < 64; i+=8)
+    {
+        sprintf(s_to_send, "0x%x %d %d %d %d %d %d %d %d\n",
+                (unsigned int) (p + i),
+                *(p + i + 0),
+                *(p + i + 1),
+                *(p + i + 2),
+                *(p + i + 3),
+                *(p + i + 4),
+                *(p + i + 5),
+                *(p + i + 6),
+                *(p + i + 7));
+        
+        Usart1Send(s_to_send);
+        Wait_ms(20);
+    }
+
+    //write mem conf
+    struct mem_conf_st {
+        uint32_t d0;
+        uint32_t d1;
+        uint32_t d2;
+        uint32_t d3;
+    };
+
+    struct mem_conf_st mem_conf;
+    mem_conf.d0 = 0x5555;
+    mem_conf.d1 = 0xAAAA;
+    mem_conf.d2 = 0x0000;
+    mem_conf.d3 = 0x7777;
+
+    Usart1Send("\nWriting Flash...\n");
+    Wait_ms(300);
+    if (Flash_WriteConfigurations((uint32_t *) &mem_conf, sizeof(mem_conf)) == FLASH_COMPLETE)
+        Usart1Send("Seems all good\n");
+
+    Wait_ms(300);
+    for (unsigned char i = 0; i < 64; i+=8)
+    {
+        sprintf(s_to_send, "0x%x %x %x %x %x %x %x %x %x\n",
+                (unsigned int) (p + i),
+                *(p + i + 0),
+                *(p + i + 1),
+                *(p + i + 2),
+                *(p + i + 3),
+                *(p + i + 4),
+                *(p + i + 5),
+                *(p + i + 6),
+                *(p + i + 7));
+        
+        Usart1Send(s_to_send);
+        Wait_ms(20);
+    }
+
+    Wait_ms(300);
+    Usart1Send("\nVerifing Flash Backuped Data...\n");
+    Wait_ms(300);
+
+    struct mem_conf_st mem_backuped;
+    memcpy(&mem_backuped, (uint32_t *) FLASH_ADDRESS_FOR_BKP, sizeof(mem_backuped));
+
+    if ((mem_conf.d0 == mem_backuped.d0) &&
+        (mem_conf.d1 == mem_backuped.d1) &&
+        (mem_conf.d2 == mem_backuped.d2) &&
+        (mem_conf.d3 == mem_backuped.d3))
+        Usart1Send("Verified OK!!!\n");
+    else
+        Usart1Send("Verified NOK errors in backuped data\n");
+        
+    while (1)
+    {
+        Wait_ms(300);
+        if (LED)
+            LED_OFF;
+        else
+            LED_ON;
+
+    }
+}
 
 //--- end of file ---//
