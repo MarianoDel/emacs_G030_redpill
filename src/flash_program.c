@@ -3,6 +3,7 @@
 // ## @Author: Med
 // ## @Editor: Emacs - ggtags
 // ## @TAGS:   Global
+// ## @CPU:    STM32G030
 // ##
 // #### FLASH_PROGRAM.C #######################
 //---------------------------------------------
@@ -173,12 +174,12 @@ FLASH_Status FLASH_WaitForLastOperation(uint32_t Timeout)
   return status;
 }
 
-// /**
-//   * @brief  Returns the FLASH Status.
-//   * @param  None
-//   * @retval FLASH Status: The returned value can be:
-//   *         FLASH_BUSY, FLASH_ERROR_PROGRAM, FLASH_ERROR_WRP or FLASH_COMPLETE.
-//   */
+/**
+  * @brief  Returns the FLASH Status.
+  * @param  None
+  * @retval FLASH Status: The returned value can be:
+  *         FLASH_BUSY, FLASH_ERROR_PROGRAM, FLASH_ERROR_WRP or FLASH_COMPLETE.
+  */
 FLASH_Status FLASH_GetStatus(void)
 {
   FLASH_Status FLASHstatus = FLASH_COMPLETE;

@@ -3,6 +3,7 @@
 // ## @Author: Med
 // ## @Editor: Emacs - ggtags
 // ## @TAGS:   Global
+// ## @CPU:    STM32G030
 // ##
 // #### FLASH_PROGRAM.H #######################
 //---------------------------------------------
@@ -145,10 +146,6 @@ typedef enum {
 
 #define IS_FLASH_GET_FLAG(FLAG)  (((FLAG) == FLASH_FLAG_BSY) || ((FLAG) == FLASH_FLAG_PGERR) || \
                                   ((FLAG) == FLASH_FLAG_WRPERR) || ((FLAG) == FLASH_FLAG_EOP))
-
-
-
-// typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 
 
 // Module exported Functions ---------------------------------------------------
