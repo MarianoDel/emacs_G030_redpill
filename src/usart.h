@@ -3,6 +3,7 @@
 // ## @Author: Med
 // ## @Editor: Emacs - ggtags
 // ## @TAGS:   Global
+// ## @CPU:    STM32G030
 // ##
 // #### USART.C ##################
 //--------------------------------
@@ -29,8 +30,6 @@
 
 #define USARTx_RX_DISA	USARTx->CR1 &= 0xfffffffb
 #define USARTx_RX_ENA	USARTx->CR1 |= 0x04
-
-#define TT_GSM_MINI		5
 
 #define SIZEOF_DATA 256
 // #define SIZEOF_TXDATA 128

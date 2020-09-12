@@ -3,6 +3,7 @@
 // ## @Author: Med
 // ## @Editor: Emacs - ggtags
 // ## @TAGS:   Global
+// ## @CPU:    STM32G030
 // ##
 // #### USART.C ##################
 //--------------------------------
@@ -139,7 +140,7 @@ void USART1_IRQHandler(void)
 {
     unsigned char dummy;
 
-    /* USART in mode Receiver --------------------------------------------------*/
+    // USART in Rx mode --------------------------------------------------
     if (USART1->ISR & USART_ISR_RXNE_RXFNE)
     {
         dummy = USART1->RDR & 0x0FF;
@@ -176,7 +177,7 @@ void USART1_IRQHandler(void)
         
     }
 
-    /* USART in mode Transmitter -------------------------------------------------*/
+    // USART in Tx mode --------------------------------------------------
     if (USART1->CR1 & USART_CR1_TXEIE_TXFNFIE)
     {
         if (USART1->ISR & USART_ISR_TXE_TXFNF)
