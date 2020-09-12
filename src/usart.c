@@ -164,17 +164,6 @@ void USART1_IRQHandler(void)
         else
             prx1 = rx1buff;    //soluciona problema bloqueo con garbage
         
-        // //Rx del GSM
-        // if (prx1 < &rx1buff[SIZEOF_DATA])
-        // {
-        //     *prx1 = dummy;
-        //     prx1++;
-        //     usart1_have_data = 1;
-        // }
-        // else
-        //     prx1 = rx1buff;    //soluciona problema bloqueo con garbage
-        // usart1_mini_timeout = TT_GSM_MINI;
-        
     }
 
     // USART in Tx mode --------------------------------------------------
