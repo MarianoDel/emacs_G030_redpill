@@ -3,7 +3,7 @@
 // ## @Author: Med
 // ## @Editor: Emacs - ggtags
 // ## @TAGS:   Global
-// ## @CPU:    STM32F030
+// ## @CPU:    STM32G030
 // ##
 // #### ADC.C #################################
 //---------------------------------------------
@@ -92,13 +92,6 @@ void AdcConfig (void)
     //set sampling time
     ADC1->SMPR |= ADC_SMPR_SMP1_2 | ADC_SMPR_SMP1_1 | ADC_SMPR_SMP1_0 |
         ADC_SMPR_SMP2_2 | ADC_SMPR_SMP2_1 | ADC_SMPR_SMP2_0;
-    
-    // ADC1->SMPR |= ADC_SampleTime_71_5Cycles;
-    // ADC1->SMPR |= ADC_SampleTime_41_5Cycles;		//17.39 son SP 420    
-    // ADC1->SMPR |= ADC_SampleTime_28_5Cycles;		//17.39 son SP 420
-    //ADC1->SMPR |= ADC_SampleTime_7_5Cycles;		//17.36 de salida son SP 420 pero a veces pega
-    //las dos int (usar DMA?) y pierde el valor intermedio
-    //ADC1->SMPR |= ADC_SampleTime_1_5Cycles;			//20.7 de salida son SP 420 (regula mal)
 
     //set channel selection
     ADC1->CHSELR |= ADC_All_Orer_Channels;
@@ -152,10 +145,6 @@ void ADC1_IRQHandler (void)
         adc_int_seq_ready = 1;
         //clear pending
         ADC1->ISR |= ADC_IT_EOC | ADC_IT_EOSEQ;
-        if (LED)
-            LED_OFF;
-        else
-            LED_ON;
     }
 }
 #endif

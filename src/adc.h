@@ -3,6 +3,7 @@
 // ## @Author: Med
 // ## @Editor: Emacs - ggtags
 // ## @TAGS:   Global
+// ## @CPU:    STM32G030
 // ##
 // #### ADC.H #################################
 //---------------------------------------------
@@ -14,7 +15,6 @@
 //----------- Some ADC Configurations ----------------//
 // #define ADC_WITH_INT
 #define ADC_WITH_DMA
-
 
 #ifdef WITH_TEMP_CONTROL
 #define ADC_WITH_TEMP_SENSE
@@ -79,15 +79,6 @@
 #define ADC_Channel_TempSensor                     ((uint32_t)ADC_Channel_16)
 #define ADC_Channel_Vrefint                        ((uint32_t)ADC_Channel_17)
 #define ADC_Channel_Vbat                           ((uint32_t)ADC_Channel_18) /*!< Not available for STM32F030 devices */
-
-#define ADC_SampleTime_1_5Cycles                     ((uint32_t)0x00000000)
-#define ADC_SampleTime_7_5Cycles                     ((uint32_t)0x00000001)
-#define ADC_SampleTime_13_5Cycles                    ((uint32_t)0x00000002)
-#define ADC_SampleTime_28_5Cycles                    ((uint32_t)0x00000003)
-#define ADC_SampleTime_41_5Cycles                    ((uint32_t)0x00000004)
-#define ADC_SampleTime_55_5Cycles                    ((uint32_t)0x00000005)
-#define ADC_SampleTime_71_5Cycles                    ((uint32_t)0x00000006)
-#define ADC_SampleTime_239_5Cycles                   ((uint32_t)0x00000007)
 
 #define ADC_Resolution_12b                         ((uint32_t)0x00000000)
 #define ADC_Resolution_10b                         ADC_CFGR1_RES_0
