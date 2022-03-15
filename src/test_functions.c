@@ -23,12 +23,12 @@
 #include <string.h>
 
 
-
 // Externals -------------------------------------------------------------------
 extern volatile unsigned char usart1_have_data;
 extern volatile unsigned char usart2_have_data;
 extern volatile unsigned char adc_int_seq_ready;
 extern volatile unsigned short adc_ch [];
+
 
 // Globals ---------------------------------------------------------------------
 
@@ -37,9 +37,45 @@ extern volatile unsigned short adc_ch [];
 
 
 // Module Private Functions ----------------------------------------------------
+void TF_Led (void);
+void TF_Gpio_Input (void);
+void TF_Gpio_Share_Outputs (void);
+void TF_Usart1_Single (void);
+void TF_Usart1_Multiple (void);
+void TF_Usart1_TxRx (void);
+void TF_Usart1_Adc (void);
+void TF_Usart1_Adc_Int (void);
+void TF_Usart1_Adc_Dma (void);
+void TF_Usart2_Single (void);
+void TF_Usart2_Multiple (void);
+void TF_Tim3_Pwm (void);
+void TF_Usart1_Flash_Empty_Page (void);
+void TF_Usart1_Flash_Write_Data (void);
+void TF_Mco_Output (void);
 
 
 // Module Functions ------------------------------------------------------------
+void TF_Hardware_Tests (void)
+{
+    // TF_Led ();
+    // TF_Gpio_Input ();
+    // TF_Gpio_Share_Outputs ();
+    // TF_Usart1_Single ();
+    // TF_Usart1_Multiple ();
+    // TF_Usart1_TxRx ();
+    // TF_Usart1_Adc ();
+    // TF_Usart1_Adc_Int ();
+    // TF_Usart1_Adc_Dma ();
+    // TF_Usart2_Single ();
+    // TF_Usart2_Multiple ();
+    TF_Tim3_Pwm ();
+    // TF_Usart1_Flash_Empty_Page ();
+    // TF_Usart1_Flash_Write_Data ();
+    // TF_Mco_Output ();
+    
+}
+
+
 void TF_Led (void)
 {
     while (1)
@@ -323,35 +359,64 @@ void TF_Usart2_Multiple (void)
 }
 
 
+void TF_Mco_Output (void)
+{
+    // output on MCO pin PA8 already enabled, if its set at alternative function
+    
+    while (1)
+    {
+        if (LED)
+            LED_OFF;
+        else
+            LED_ON;
+
+        Wait_ms(10);
+    }
+}
+
+
 void TF_Tim3_Pwm (void)
 {
     TIM_3_Init();
 
+    Update_TIM3_CH3 (11);
+
     while (1)
     {
-        for (unsigned short i = 0; i < 1000; i++)
-        {
-            Update_TIM3_CH3 (i);
-            Wait_ms(2);            
-        }
-
         if (LED)
             LED_OFF;
         else
             LED_ON;
 
-        for (unsigned short i = 1000; i > 0; i--)
-        {
-            Update_TIM3_CH3 (i);
-            Wait_ms(2);            
-        }
-
-        if (LED)
-            LED_OFF;
-        else
-            LED_ON;
-        
+        Wait_ms(10);
     }
+    
+
+    // while (1)
+    // {
+    //     for (unsigned short i = 0; i < 1000; i++)
+    //     {
+    //         Update_TIM3_CH3 (i);
+    //         Wait_ms(2);            
+    //     }
+
+    //     if (LED)
+    //         LED_OFF;
+    //     else
+    //         LED_ON;
+
+    //     for (unsigned short i = 1000; i > 0; i--)
+    //     {
+    //         Update_TIM3_CH3 (i);
+    //         Wait_ms(2);            
+    //     }
+
+    //     if (LED)
+    //         LED_OFF;
+    //     else
+    //         LED_ON;
+        
+    // }
 }
 
 
@@ -531,5 +596,6 @@ void TF_Usart1_Flash_Write_Data (void)
 
     }
 }
+
 
 //--- end of file ---//

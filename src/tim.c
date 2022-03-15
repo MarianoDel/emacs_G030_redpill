@@ -78,7 +78,8 @@ void TIM_3_Init (void)
     TIM3->CCMR2 = 0x0060;        //CH3 PWM mode 2
     TIM3->CCER |= TIM_CCER_CC3E;        //CH3 enable on pin
 
-    TIM3->ARR = 1000;        //64MHz / 1000
+    // TIM3->ARR = 1000;        //64MHz / 1000
+    TIM3->ARR = 21;        // 48MHz / 22
     TIM3->CNT = 0;
     TIM3->PSC = 0;
     // TIM3->PSC = 11;

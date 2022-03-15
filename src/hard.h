@@ -20,8 +20,10 @@
 //-------- Type of Program ----------------
 
 //-------- Clock Frequency ------------------------------------
-#define CLOCK_FREQ_64_MHZ    //ojo modificar a mano system_stm32g0xx.c SystemInit
-// #define CLOCK_FREQ_16_MHZ    //ojo modificar a mano system_stm32g0xx.c SystemInit
+// #define CLOCK_FREQ_64_MHZ    // modify by hand SystemInit() on system_stm32g0xx.c
+#define CLOCK_FREQ_48_MHZ    // modify by hand SystemInit() on system_stm32g0xx.c
+// #define CLOCK_FREQ_16_MHZ    // modify by hand SystemInit() on system_stm32g0xx.c
+
 
 //-------- End Of Defines For Configuration ------
 

@@ -26,12 +26,14 @@ BIN  = $(CP) -O binary -S
 MCU  = cortex-m0plus
 
 # List all default C defines here, like -D_DEBUG=1
-#para el micro STM32F051C8T6
+# for processor STM32F051C8T6
 # DDEFS = -DSTM32F051
-#para el micro STM32F030K6T6
+# for processor STM32F030K6T6
 # DDEFS = -DSTM32F030
-#para el micro STM32G030J6M6
+# for processor STM32G030K8T6, STM32G030J6M6
 DDEFS = -DSTM32G030xx
+# for processor STM32G070KBT6
+# DDEFS = -DSTM32G070xx
 
 
 # List all default directories to look for include files here
@@ -52,8 +54,8 @@ DLIBS =
 #
 
 #
-# Define project name
-PROJECT        = Template_G030
+# Define project name, check on linker selection part
+# PROJECT = Template_G030
 
 # List all user C define here, like -D_DEBUG=1
 UDEFS =
@@ -79,11 +81,8 @@ SRC += ./src/adc.c
 SRC += ./src/dma.c
 SRC += ./src/usart.c
 SRC += ./src/flash_program.c
-# SRC += ./src/dsp.c
-# SRC += ./src/hard.c
 SRC += ./src/test_functions.c
-# SRC += ./src/sim900_800.c
-# SRC += ./src/funcs_gsm.c
+
 
 ## Core Support
 # SRC += $(CORELIBDIR)/core_cm0.c
@@ -97,8 +96,8 @@ SRC += ./src/test_functions.c
 #SRC += $(DLIBDIR)/src/gsm_hal.c
 
 
-# List ASM source files here
-ASRC = ./cmsis_boot/startup/startup_stm32g030xx.s
+# List ASM source files here, check linker part selection
+# ASRC = ./cmsis_boot/startup/startup_stm32g030xx.s
 
 # List all user directories here
 UINCDIR = $(BOOTDIR) \
@@ -125,7 +124,18 @@ OPT = -O0
 #
 # Define linker script file here
 #
+ifeq ($(DDEFS), -DSTM32G070xx)
+$(info --------------- STM32G070 VERSION ---------------)
+PROJECT = Template_G070
+ASRC = ./cmsis_boot/startup/startup_stm32g070xx.s
+LDSCRIPT = $(LINKER)/stm32_flash_g070.ld
+else
+$(info --------------- STM32G030 VERSION ---------------)
+PROJECT = Template_G030
+ASRC = ./cmsis_boot/startup/startup_stm32g030xx.s
 LDSCRIPT = $(LINKER)/stm32_flash_g030.ld
+endif
+
 FULL_PRJ = $(PROJECT)_rom
 
 INCDIR  = $(patsubst %,-I%,$(DINCDIR) $(UINCDIR))
@@ -206,14 +216,42 @@ clean:
 	rm -f $(FULL_PRJ).bin
 	rm -f $(SRC:.c=.lst)
 	rm -f $(ASRC:.s=.lst)
+	rm -f *.o
+	rm -f *.out
+
 
 tests:
-	# primero objetos de los modulos a testear, solo si son tipo HAL sin dependencia del hard
-	# gcc -c src/lcd.c -I. $(INCDIR)
-	# gcc src/tests.c lcd.o
-	# ./a.out
-	# sino copiar funcion a testear al main de tests.c
+	# simple functions tests, copy functions to tests module into main
 	gcc src/tests.c
 	./a.out
+
+tests_comm:
+	# first module objects to test
+	gcc -c src/comm.c -I. $(INCDIR) $(DDEFS)
+	# second auxiliary helper modules
+	gcc -c src/tests_ok.c -I $(INCDIR)
+	gcc -c src/tests_mock_usart.c -I $(INCDIR)
+	gcc src/tests_comm.c comm.o tests_ok.o tests_mock_usart.o -I $(INCDIR) $(DDEFS)
+	./a.out
+
+tests_battery:
+	# first module objects to test
+	gcc -c src/battery.c -I. $(INCDIR) $(DDEFS)
+	gcc -c src/dsp.c -I. $(INCDIR) $(DDEFS)
+	# second auxiliary helper modules
+	gcc -c src/tests_ok.c
+	gcc -c src/tests_utils.c
+	gcc src/tests_battery.c battery.o dsp.o tests_ok.o tests_utils.o -I $(INCDIR) $(DDEFS)
+	./a.out
+
+tests_comms_from_panel:
+	# first module objects to test
+	gcc -c src/comms_from_panel.c -I. $(INCDIR) $(DDEFS)
+	# second auxiliary helper modules
+	gcc -c src/tests_ok.c -I $(INCDIR)
+	gcc -c src/tests_mock_usart.c -I $(INCDIR)
+	gcc src/tests_comms_from_panel.c comms_from_panel.o tests_ok.o tests_mock_usart.o -I $(INCDIR) $(DDEFS)
+	./a.out
+
 
 # *** EOF ***

@@ -67,6 +67,8 @@ void GPIO_Config (void)
     // temp |= 0x21000000;    //
     temp &= 0xFCFFFFFF;    //PA12 output
     temp |= 0x01000000;    //
+    // temp &= 0xFCFCFFFF;    // PA8 alternative, PA12 output
+    // temp |= 0x01020000;    //
     GPIOA->MODER = temp;
 
     temp = GPIOA->OTYPER;	//1 bit por pin
@@ -92,12 +94,14 @@ void GPIO_Config (void)
     temp = GPIOB->MODER;	//2 bits por pin
     // temp &= 0xFFFF0FFF;		//PB6 alternative PB7 output
     // temp |= 0x00006000;
-    temp &= 0xFFFF0FFC;        //PB0 analog PB6 alternative PB7 alternative    
-    temp |= 0x0000A003;
+    // temp &= 0xFFFF0FFC;        //PB0 analog PB6 alternative PB7 alternative    
+    // temp |= 0x0000A003;
     // temp &= 0xFFFFFFFC;        //PB0 analog
     // temp |= 0x00000003;
-    // temp &= 0xFFFFFFFC;        //PB0 alternative
-    // temp |= 0x00000002;
+    temp &= 0xFFFFFFFC;        //PB0 alternative
+    temp |= 0x00000002;
+    // temp &= 0xFFFFFFFF;        // do nothing here
+    // temp |= 0x00000000;
     GPIOB->MODER = temp;
 
     temp = GPIOB->OTYPER;	//1 bit por pin

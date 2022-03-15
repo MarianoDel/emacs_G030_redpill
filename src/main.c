@@ -20,14 +20,10 @@
 #include "tim.h"
 // #include "usart.h"
 #include "hard.h"
-
-// #include "core_cm0.h"
 #include "adc.h"
 // #include "dma.h"
 #include "flash_program.h"
 
-// #include "sim900_800.h"
-// #include "funcs_gsm.h"
 #include "test_functions.h"
 
 
@@ -51,22 +47,13 @@ parameters_typedef __attribute__ ((section("memParams"))) const parameters_const
     .imei = "0000"
 };
 
+
 // Globals ---------------------------------------------------------------------
-
-// --- To or from timers ------------------------------
-
-// volatile unsigned short timer_standby = 0;
-// volatile unsigned short timer_prender_ringing = 0;
-// volatile unsigned short tcp_kalive_timer;
-// //volatile unsigned char display_timer;
-// volatile unsigned char timer_meas;
-
-
 
 
 // Module Private Functions ----------------------------------------------------
 void TimingDelay_Decrement(void);
-// void Wait_ms (unsigned short);
+void SysTickError (void);
 
 
 //-------------------------------------------//
@@ -76,60 +63,30 @@ void TimingDelay_Decrement(void);
 //------------------------------------------//
 int main(void)
 {
-    // char s_lcd [100];
-
     //GPIO Configuration.
     GPIO_Config();
 
-    //ACTIVAR SYSTICK TIMER
+    //Start the SysTick Timer
 #ifdef CLOCK_FREQ_64_MHZ
     if (SysTick_Config(64000))
+        SysTickError();
+#endif
+#ifdef CLOCK_FREQ_48_MHZ
+    if (SysTick_Config(48000))
+        SysTickError();
 #endif
 #ifdef CLOCK_FREQ_16_MHZ
     if (SysTick_Config(16000))
+        SysTickError();
 #endif
-    {
-        while (1)	/* Capture error */
-        {
-            if (LED)
-                LED_OFF;
-            else
-                LED_ON;
 
-            for (unsigned char i = 0; i < 255; i++)
-            {
-                asm (	"nop \n\t"
-                        "nop \n\t"
-                        "nop \n\t" );
-            }
-        }
-    }
-
-
-    //--- Welcome code ---//
-    // TF_Led();
-    // TF_Usart1_Multiple();
-    // TF_Usart1_TxRx();
-    // TF_Usart1_Adc();
-    // TF_Usart1_Adc_Int();
-    // TF_Usart1_Adc_Dma();
-    // TF_Usart2_Single();
-    // TF_Usart2_Multiple();
-    // TF_Tim3_Pwm();
-    // TF_Usart1_Flash_Empty_Page ();
-    TF_Usart1_Flash_Write_Data ();
+    //--- Hardware Tests Functions ---
+    TF_Hardware_Tests ();
     
     return 0;
 }
 
 //--- End of Main ---//
-
-// void Wait_ms (unsigned short wait)
-// {
-//     wait_ms_var = wait;
-//     while (wait_ms_var);
-// }
-
 
 void TimingDelay_Decrement(void)
 {
@@ -138,5 +95,25 @@ void TimingDelay_Decrement(void)
 
 }
 
-//--- end of file ---//
 
+void SysTickError (void)
+{
+    //Capture systick error...
+    while (1)
+    {
+        if (LED)
+            LED_OFF;
+        else
+            LED_ON;
+
+        for (unsigned char i = 0; i < 255; i++)
+        {
+            asm ("nop \n\t"
+                 "nop \n\t"
+                 "nop \n\t" );
+        }
+    }
+}
+
+
+//--- end of file ---//
