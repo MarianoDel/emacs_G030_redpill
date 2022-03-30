@@ -162,7 +162,7 @@
   */
 void SystemClock64MHz (void);
 void SystemClock48MHz (void);
-
+void SystemClock48MHz_Xtal12MHz (void);
 
 /**
   * @brief  Setup the microcontroller system.
@@ -178,7 +178,8 @@ void SystemInit(void)
     SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
     // SystemClock64MHz ();
-    SystemClock48MHz ();    
+    SystemClock48MHz ();
+    // SystemClock48MHz_Xtal12MHz ();    // only for lqpf48
 }
 
 
@@ -302,10 +303,86 @@ void SystemClock48MHz (void)
     //     // pllrckl -> mco    
     //     // pllrclk -> sysclk
 
-    // //Check system clock source selected
+    // Check system clock source selected
     while (!((RCC->CFGR & RCC_CFGR_SW_Msk) == RCC_CFGR_SW_1));
                
 }
+
+
+// only for lqpf48
+void SystemClock48MHz_Xtal12MHz (void)
+{
+    //FLASH FREQ CONFIG
+    //First modify flash latency
+    FLASH->ACR &= (~(FLASH_ACR_LATENCY_Msk));
+    FLASH->ACR |= FLASH_ACR_LATENCY_1;
+
+    //verify FLASH Latency
+    while (!((FLASH->ACR & FLASH_ACR_LATENCY_Msk) == FLASH_ACR_LATENCY_1));
+
+    //PLL FREQ CONFIG
+    //Disable the PLL
+    RCC->CR &= (~(RCC_CR_PLLON));
+
+    //Check PLL disable
+    while (RCC->CR & RCC_CR_PLLRDY);
+
+    // HSE config
+    // enable HSE xtal
+    RCC->CR |= RCC_CR_HSEON;
+    // wait xtal to get ready
+    while (!(RCC->CR & RCC_CR_HSERDY));
+    
+    // Change PLL multiplier N x16 (x16 default after reset)
+    RCC->PLLCFGR |= RCC_PLLCFGR_PLLN_4;
+
+    // Change PLL divider M /2 (vco input 2.66 to 16MHz)
+    RCC->PLLCFGR |= RCC_PLLCFGR_PLLM_0;
+
+    // -- 12MHz * 16 / 2 = 96MHz (vco output 64 to 344MHz)
+
+    //Change PLLR divider for PLLRCLK output /2 = 48MHz
+    RCC->PLLCFGR |= RCC_PLLCFGR_PLLR_0;
+
+    //Change PLLP divider for PLLPCLK output /4 = 24MHz
+    RCC->PLLCFGR |= RCC_PLLCFGR_PLLP_1 | RCC_PLLCFGR_PLLP_0;
+
+    //PLL Clock source (HSE)
+    RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC_1 | RCC_PLLCFGR_PLLSRC_0;
+
+    //Enable PLL
+    RCC->CR |= RCC_CR_PLLON;
+    
+    //Check PLL enable
+    while (!(RCC->CR & RCC_CR_PLLRDY));
+        
+    //Enable PLLRCLK
+    RCC->PLLCFGR |= RCC_PLLCFGR_PLLREN;
+
+    //Enable PLLPCLK
+    // // RCC->PLLCFGR |= RCC_PLLCFGR_PLLPEN;
+
+    //AHB FREQ CONFIG
+
+    //APB FREQ CONFIG
+    
+    //SYSTEM CLOCK SOURCE
+    RCC->CFGR |= RCC_CFGR_SW_1;
+        // pllrclk -> sysclk
+    
+    // RCC->CFGR |= RCC_CFGR_MCOPRE_1 | RCC_CFGR_MCOPRE_0 |
+    //     RCC_CFGR_MCOSEL_2 | RCC_CFGR_MCOSEL_0 |
+    //     RCC_CFGR_SW_1;
+    //     // mco / 8
+    //     // pllrckl -> mco    
+    //     // pllrclk -> sysclk
+
+    // Check system clock source selected
+    while (!((RCC->CFGR & RCC_CFGR_SW_Msk) == RCC_CFGR_SW_1));
+               
+}
+
+
 
 
 /**

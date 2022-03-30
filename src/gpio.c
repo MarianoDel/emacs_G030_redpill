@@ -98,8 +98,8 @@ void GPIO_Config (void)
     // temp |= 0x0000A003;
     // temp &= 0xFFFFFFFC;        //PB0 analog
     // temp |= 0x00000003;
-    temp &= 0xFFFFFFFC;        //PB0 alternative
-    temp |= 0x00000002;
+    temp &= 0xFFFFCFFC;        //PB0 alternative; PB6 alternative
+    temp |= 0x00002002;
     // temp &= 0xFFFFFFFF;        // do nothing here
     // temp |= 0x00000000;
     GPIOB->MODER = temp;

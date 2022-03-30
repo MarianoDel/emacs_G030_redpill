@@ -48,6 +48,7 @@ void TF_Usart1_Adc_Int (void);
 void TF_Usart1_Adc_Dma (void);
 void TF_Usart2_Single (void);
 void TF_Usart2_Multiple (void);
+void TF_Tim1_Tim3_Pwm (void);
 void TF_Tim3_Pwm (void);
 void TF_Usart1_Flash_Empty_Page (void);
 void TF_Usart1_Flash_Write_Data (void);
@@ -68,7 +69,8 @@ void TF_Hardware_Tests (void)
     // TF_Usart1_Adc_Dma ();
     // TF_Usart2_Single ();
     // TF_Usart2_Multiple ();
-    TF_Tim3_Pwm ();
+    TF_Tim1_Tim3_Pwm ();
+    // TF_Tim3_Pwm ();
     // TF_Usart1_Flash_Empty_Page ();
     // TF_Usart1_Flash_Write_Data ();
     // TF_Mco_Output ();
@@ -372,6 +374,51 @@ void TF_Mco_Output (void)
 
         Wait_ms(10);
     }
+}
+
+
+void TF_Tim1_Tim3_Pwm (void)
+{
+    TIM_1_Init();
+    
+    TIM_3_Init();
+
+    Update_TIM3_CH3 (11);
+
+    while (1)
+    {
+        Wait_ms(1);
+        Update_TIM1_CH3 (0);
+        Wait_ms(1);
+        Update_TIM1_CH3 (600);
+    }
+    
+
+    // while (1)
+    // {
+    //     for (unsigned short i = 0; i < 1000; i++)
+    //     {
+    //         Update_TIM3_CH3 (i);
+    //         Wait_ms(2);            
+    //     }
+
+    //     if (LED)
+    //         LED_OFF;
+    //     else
+    //         LED_ON;
+
+    //     for (unsigned short i = 1000; i > 0; i--)
+    //     {
+    //         Update_TIM3_CH3 (i);
+    //         Wait_ms(2);            
+    //     }
+
+    //     if (LED)
+    //         LED_OFF;
+    //     else
+    //         LED_ON;
+        
+    // }
 }
 
 

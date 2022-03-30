@@ -13,6 +13,41 @@
 #include "stm32g0xx.h"
 #include "hard.h"
 
+
+// Module Types Constants and Macros -------------------------------------------
+#define RCC_TIM1_CLK    (RCC->APBENR2 & 0x00000800)
+#define RCC_TIM1_CLK_ON    (RCC->APBENR2 |= 0x00000800)
+#define RCC_TIM1_CLK_OFF    (RCC->APBENR2 &= ~0x00000800)
+
+#define RCC_TIM3_CLK    (RCC->APBENR1 & 0x00000002)
+#define RCC_TIM3_CLK_ON    (RCC->APBENR1 |= 0x00000002)
+#define RCC_TIM3_CLK_OFF    (RCC->APBENR1 &= ~0x00000002)
+
+#define RCC_TIM6_CLK    (RCC->APBENR1 & 0x00000010)
+#define RCC_TIM6_CLK_ON    (RCC->APBENR1 |= 0x00000010)
+#define RCC_TIM6_CLK_OFF    (RCC->APBENR1 &= ~0x00000010)
+
+#define RCC_TIM7_CLK    (RCC->APBENR1 & 0x00000020)
+#define RCC_TIM7_CLK_ON    (RCC->APBENR1 |= 0x00000020)
+#define RCC_TIM7_CLK_OFF    (RCC->APBENR1 &= ~0x00000020)
+
+#define RCC_TIM14_CLK    (RCC->APBENR2 & 0x00008000)
+#define RCC_TIM14_CLK_ON    (RCC->APBENR2 |= 0x00008000)
+#define RCC_TIM14_CLK_OFF    (RCC->APBENR2 &= ~0x00008000)
+
+#define RCC_TIM15_CLK    (RCC->APBENR2 & 0x00010000)
+#define RCC_TIM15_CLK_ON    (RCC->APBENR2 |= 0x00010000)
+#define RCC_TIM15_CLK_OFF    (RCC->APBENR2 &= ~0x00010000)
+
+#define RCC_TIM16_CLK    (RCC->APBENR2 & 0x00020000)
+#define RCC_TIM16_CLK_ON    (RCC->APBENR2 |= 0x00020000)
+#define RCC_TIM16_CLK_OFF    (RCC->APBENR2 &= ~0x00020000)
+
+#define RCC_TIM17_CLK    (RCC->APBENR2 & 0x00040000)
+#define RCC_TIM17_CLK_ON    (RCC->APBENR2 |= 0x00040000)
+#define RCC_TIM17_CLK_OFF    (RCC->APBENR2 &= ~0x00040000)
+
+
 // Externals -------------------------------------------------------------------
 // extern volatile unsigned char timer_1seg;
 // extern volatile unsigned short timer_led_comm;
@@ -27,6 +62,12 @@ extern volatile unsigned short wait_ms_var;
 
 
 // Module Functions ------------------------------------------------------------
+void Update_TIM1_CH3 (unsigned short a)
+{
+    TIM1->CCR3 = a;
+}
+
+
 // void Update_TIM3_CH1 (unsigned short a)
 // {
 //     TIM3->CCR1 = a;
@@ -62,6 +103,45 @@ void TIM3_IRQHandler (void)	//1 ms
 {
     if (TIM3->SR & 0x01)	//bajo el flag
         TIM3->SR = 0x00;
+}
+
+
+void TIM_1_Init (void)
+{
+    unsigned long temp;
+
+    if (!RCC_TIM1_CLK)
+        RCC_TIM1_CLK_ON;
+
+    //Configuracion del timer.
+    TIM1->CR1 = 0x00;		//clk int / 1; upcounting
+    // TIM1->CR2 |= TIM_CR2_MMS_1;		//UEV -> TRG0
+
+    TIM1->SMCR = 0x0000;
+    // TIM1->CCMR1 = 0x0060;    //CH1 output PWM mode 1 (channel active TIM1->CNT < TIM1->CCR1)
+    TIM1->CCMR2 = 0x0060;    //CH3 output PWM mode 1 (channel active TIM1->CNT < TIM1->CCR1)
+    
+    TIM1->CCER |= TIM_CCER_CC3E;    //CH3 enable on pin direct polarity
+
+    TIM1->BDTR |= TIM_BDTR_MOE;
+    
+    TIM1->ARR = 600;    // 80khz on 48MHz
+    TIM1->CNT = 0;
+
+    TIM1->PSC = 0;
+
+    //Alternate Fuction Pin Configurations
+    temp = GPIOB->AFR[0];
+    temp &= 0xF0FFFFFF;    
+    temp |= 0x01000000;    //PB6 -> AF1
+    GPIOB->AFR[0] = temp;
+
+    // Enable timer interrupt ver UDIS
+    // TIM1->DIER |= TIM_DIER_UIE;
+    // NVIC_EnableIRQ(TIM1_BRK_UP_TRG_COM_IRQn);
+    // NVIC_SetPriority(TIM1_BRK_UP_TRG_COM_IRQn, 1);
+    
+    TIM1->CR1 |= TIM_CR1_CEN;
 }
 
 
